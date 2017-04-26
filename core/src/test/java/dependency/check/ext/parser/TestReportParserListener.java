@@ -23,6 +23,7 @@ import java.util.List;
 
 public class TestReportParserListener implements ReportParserListener {
     private HashMap<String, List<String>> filenameToVulnerabilites = new HashMap<>();
+    private HashMap<String, List<String>> filenameToSuppressions = new HashMap<>();
 
     public void assertVulnerabilitiesFor(String dependencyFilename, String... expectedVulnerabilities) {
         Assert.assertTrue("Filename (" + dependencyFilename + ") has no vulnerabilities. Available filenames with vulnerabilites: " + filenameToVulnerabilites.keySet(),
@@ -32,11 +33,27 @@ public class TestReportParserListener implements ReportParserListener {
         Assert.assertEquals("Bad vulnerabilities for: " + dependencyFilename, Arrays.asList(expectedVulnerabilities), vulnerabilities);
     }
 
+    public void assertSuppressionFor(String dependencyFilename, String... expectedSuppressedVulnerabilites) {
+        Assert.assertTrue("Filename (" + dependencyFilename + ") has no suppressions. Available filenames with suppressions: " + filenameToSuppressions.keySet(),
+                filenameToSuppressions.containsKey(dependencyFilename));
+
+        List<String> supressions = filenameToSuppressions.getOrDefault(dependencyFilename, Collections.emptyList());
+        Assert.assertEquals("Bad suppressions for: " + dependencyFilename, Arrays.asList(expectedSuppressedVulnerabilites), supressions);
+    }
+
     @Override
     public void onVulnerability(String filename, String vulnerabilityName) {
         if (!filenameToVulnerabilites.containsKey(filename)) {
             filenameToVulnerabilites.put(filename, new ArrayList<>());
         }
         filenameToVulnerabilites.get(filename).add(vulnerabilityName);
+    }
+
+    @Override
+    public void onSuppression(String filename, String vulnerabilityName) {
+        if (!filenameToSuppressions.containsKey(filename)) {
+            filenameToSuppressions.put(filename, new ArrayList<>());
+        }
+        filenameToSuppressions.get(filename).add(vulnerabilityName);
     }
 }

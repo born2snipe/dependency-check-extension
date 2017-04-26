@@ -15,4 +15,6 @@ package dependency.check.ext.parser;
 
 public interface ReportParserListener {
     void onVulnerability(String filename, String vulnerabilityName);
+
+    void onSuppression(String filename, String vulnerabilityName);
 }

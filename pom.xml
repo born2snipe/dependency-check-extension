@@ -87,9 +87,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <useReleaseProfile>false</useReleaseProfile>
-                        <arguments>-Psonatype-oss-release -D=gpg.keyname=${env.MAVEN_PGP_KEYNAME}
-                            -Dgpg.passphrase=${env.MAVEN_PGP_PASSPHRASE}
-                        </arguments>
+                        <arguments>-Psonatype-oss-release -D=gpg.keyname=${env.MAVEN_PGP_KEYNAME} -Dgpg.passphrase=${env.MAVEN_PGP_PASSPHRASE}</arguments>
                     </configuration>
                 </plugin>
 

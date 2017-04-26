@@ -18,4 +18,9 @@ public abstract class ReportParserListenerAdaptor implements ReportParserListene
     public void onVulnerability(String filename, String vulnerabilityName) {
 
     }
+
+    @Override
+    public void onSuppression(String filename, String vulnerabilityName) {
+
+    }
 }

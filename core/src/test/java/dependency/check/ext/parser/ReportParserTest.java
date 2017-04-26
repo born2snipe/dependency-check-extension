@@ -22,6 +22,17 @@ public class ReportParserTest {
     private TestReportParserListener listener = new TestReportParserListener();
 
     @Test
+    public void shouldBeAbleToParseSuppressionsAndVulnerabilties() {
+        parseReport("single-vulnerability-on-multiple-dependencies-with-suppression.xml");
+
+        listener.assertVulnerabilitiesFor("jackson-core-asl-1.9.10.jar", "CVE-2016-3720");
+        listener.assertSuppressionFor("jackson-core-asl-1.9.10.jar", "CVE-2016-7051");
+
+        listener.assertVulnerabilitiesFor("jackson-core-lgpl-1.9.13.jar", "CVE-2016-3720");
+        listener.assertSuppressionFor("jackson-core-lgpl-1.9.13.jar", "CVE-2016-7051");
+    }
+
+    @Test
     public void shouldBeAbleToParseOutVulnerabilitiesOfMultipleModules() {
         parseReport("multiple-vulnerabilities-on-multiple-dependencies.xml");
 

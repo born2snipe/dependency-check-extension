@@ -35,6 +35,7 @@ import static javax.xml.xpath.XPathConstants.NODESET;
 import static javax.xml.xpath.XPathConstants.STRING;
 
 public class ReportParser {
+    private XPathExpression suppressedVulnerabilityExpression;
     private XPathExpression filenameTextExpression;
     private XPathExpression dependencyExpression;
     private DocumentBuilder documentBuilder;
@@ -48,6 +49,7 @@ public class ReportParser {
 
             dependencyExpression = xpath.compile("//dependency");
             vulnerabilityExpression = xpath.compile("vulnerabilities/vulnerability");
+            suppressedVulnerabilityExpression = xpath.compile("vulnerabilities/suppressedVulnerability");
             nameTextExpression = xpath.compile("name/text()");
             filenameTextExpression = xpath.compile("fileName/text()");
         } catch (XPathExpressionException e) {
@@ -78,20 +80,35 @@ public class ReportParser {
             NodeList dependencyNodes = (NodeList) dependencyExpression.evaluate(doc, NODESET);
             for (int i = 0; i < dependencyNodes.getLength(); i++) {
                 Node dependencyNode = dependencyNodes.item(i);
-
                 String filename = (String) filenameTextExpression.evaluate(dependencyNode, STRING);
-                NodeList vulnerabilities = (NodeList) vulnerabilityExpression.evaluate(dependencyNode, NODESET);
-                for (int j = 0; j < vulnerabilities.getLength(); j++) {
-                    Node vulnerability = vulnerabilities.item(j);
 
-                    String vulnerabilityName = (String) nameTextExpression.evaluate(vulnerability, STRING);
-                    listener.onVulnerability(filename, vulnerabilityName);
-                }
+                processVulnerabilities(filename, dependencyNode, listener);
+                processSuppressions(filename, dependencyNode, listener);
             }
 
         } catch (SAXException | IOException | XPathExpressionException e) {
             throw new ReportParserException("A problem occurred when parsing the report file", e);
         }
 
+    }
+
+    private void processSuppressions(String filename, Node dependencyNode, ReportParserListener listener) throws XPathExpressionException {
+        NodeList vulnerabilities = (NodeList) suppressedVulnerabilityExpression.evaluate(dependencyNode, NODESET);
+        for (int j = 0; j < vulnerabilities.getLength(); j++) {
+            Node vulnerability = vulnerabilities.item(j);
+
+            String vulnerabilityName = (String) nameTextExpression.evaluate(vulnerability, STRING);
+            listener.onSuppression(filename, vulnerabilityName);
+        }
+    }
+
+    private void processVulnerabilities(String filename, Node dependencyNode, ReportParserListener listener) throws XPathExpressionException {
+        NodeList vulnerabilities = (NodeList) vulnerabilityExpression.evaluate(dependencyNode, NODESET);
+        for (int j = 0; j < vulnerabilities.getLength(); j++) {
+            Node vulnerability = vulnerabilities.item(j);
+
+            String vulnerabilityName = (String) nameTextExpression.evaluate(vulnerability, STRING);
+            listener.onVulnerability(filename, vulnerabilityName);
+        }
     }
 }
